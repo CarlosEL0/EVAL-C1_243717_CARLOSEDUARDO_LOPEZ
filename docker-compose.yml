@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:15
+    container_name: biblioteca_db
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-superpassword123}
+      POSTGRES_DB: ${DB_NAME:-biblioteca_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/2-seed.sql
+      - ./db/verify.sql:/docker-entrypoint-initdb.d/3-verify.sql
+    restart: always
