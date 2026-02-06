@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import { query } from '@/'
+import { query } from '../../../../../lib/db'
 import { z } from 'zod';
 
-// Esquema de validación para cumplir con el Hito F de la rúbrica
 const QuerySchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(10),
