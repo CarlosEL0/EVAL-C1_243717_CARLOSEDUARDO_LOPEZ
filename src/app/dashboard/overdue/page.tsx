@@ -1,39 +1,48 @@
-// app/dashboard/overdue/page.tsx
-import { query } from '../../../../lib/db';
+import { getOverdueLoansReport } from '../../../../lib/reports';
 
-async function getOverdueLoans(minDays: number = 0, page: number = 1) {
-  const limit = 5;
-  const offset = (page - 1) * limit;
-  const res = await query(
-    `SELECT * FROM vw_overdue_loans WHERE days_late >= $1 LIMIT $2 OFFSET $3`,
-    [minDays, limit, offset]
-  );
-  return res.rows;
-}
+export default async function OverduePage({ searchParams }: { searchParams: Promise<{ days?: string }> }) {
+  const params = await searchParams;
+  const minDays = Number(params.days) || 0;
 
-export default async function OverduePage({ searchParams }: { searchParams: { days?: string; page?: string } }) {
-  const minDays = Number(searchParams.days) || 0;
-  const currentPage = Number(searchParams.page) || 1;
-  const loans = await getOverdueLoans(minDays, currentPage);
-  const totalFine = loans.reduce((acc, loan) => acc + Number(loan.estimated_fine), 0);
+  // Solo llamamos a la función
+  const loans = await getOverdueLoansReport(minDays);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Préstamos Vencidos</h1>
-      <p className="text-slate-500 italic">Insight: Monitoreo de morosidad y proyección de recaudación por multas.</p>
-      
-      <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
-        <p className="text-sm text-orange-700 font-bold uppercase">Multas Estimadas en esta vista</p>
-        <p className="text-2xl font-bold text-orange-900">${totalFine.toFixed(2)}</p>
+    <div className="report-container">
+      <header className="report-header">
+        <h1 className="title-main">Préstamos Vencidos</h1>
+        <p className="subtitle-insight">Monitoreo de morosidad y cálculo automático de multas.</p>
+      </header>
+
+      <div className="kpi-box" style={{ borderColor: '#f59e0b', backgroundColor: '#fffbeb' }}>
+        <p className="kpi-label" style={{ color: '#d97706' }}>Multas Estimadas Totales</p>
+        <p className="kpi-value" style={{ color: '#92400e' }}>
+          ${loans.reduce((acc: number, l: any) => acc + Number(l.estimated_fine), 0).toFixed(2)}
+        </p>
       </div>
 
-      <form className="flex gap-4 items-center bg-white p-4 rounded-lg border">
-        <label className="text-sm font-medium">Mínimo días de atraso:</label>
-        <input type="number" name="days" defaultValue={minDays} className="border p-2 rounded w-24" />
-        <button className="bg-slate-800 text-white px-4 py-2 rounded">Filtrar</button>
+      <form className="filter-group">
+        <input type="number" name="days" defaultValue={minDays} className="input-text" placeholder="Días mínimos..." />
+        <button type="submit" className="btn-action">Filtrar</button>
       </form>
 
-      {/* Tabla similar a la anterior con campos: Miembro, Libro, Días de Atraso y Multa */}
+      <div className="table-card">
+        <table className="data-table">
+          <thead>
+            <tr><th>Socio</th><th>Libro</th><th style={{ textAlign: 'center' }}>Días</th><th style={{ textAlign: 'right' }}>Multa</th></tr>
+          </thead>
+          <tbody>
+            {loans.map((l: any, i: number) => (
+              <tr key={i}>
+                <td>{l.member_name}</td>
+                <td>{l.book_title}</td>
+                <td style={{ textAlign: 'center', color: '#dc2626', fontWeight: 'bold' }}>{l.days_late}</td>
+                <td style={{ textAlign: 'right', fontWeight: 'bold' }}>${l.estimated_fine}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
