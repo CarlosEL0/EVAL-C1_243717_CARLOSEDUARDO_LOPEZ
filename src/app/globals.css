@@ -1,26 +1,60 @@
-@import "tailwindcss";
+/* src/app/globals.css */
 
+/* 1. Variables Globales (Slate & Blue) */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
+  --text-dark: #0f172a;
+  --text-muted: #64748b;
+  --accent-blue: #2563eb;
+  --border-color: #e2e8f0;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* 2. Reset y Base */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background-color: var(--bg-main);
+  color: var(--text-dark);
+  font-family: 'Inter', system-ui, sans-serif;
 }
+
+/* 3. Clases Reutilizables para los Reportes (Requisito E) */
+.report-container {
+  padding: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.title-main { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; }
+.subtitle-insight { color: var(--text-muted); font-style: italic; margin-bottom: 2rem; }
+
+/* KPI Destacado */
+.kpi-box {
+  background-color: #eff6ff;
+  border-left: 5px solid var(--accent-blue);
+  padding: 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.kpi-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--accent-blue); }
+.kpi-value { font-size: 1.6rem; font-weight: 900; margin-top: 4px; }
+
+/* Tabla Profesional */
+.table-card {
+  background: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { background: #f1f5f9; padding: 1rem; text-align: left; font-weight: 700; border-bottom: 1px solid var(--border-color); }
+.data-table td { padding: 1rem; border-bottom: 1px solid #f8fafc; }
+.data-table tr:hover { background-color: #f8fafc; }
+
+/* Buscador y Filtros (Requisito F) */
+.filter-group { display: flex; gap: 10px; margin-bottom: 1.5rem; }
+.input-text { flex: 1; padding: 0.7rem; border: 1px solid var(--border-color); border-radius: 6px; }
+.btn-action { background: var(--text-dark); color: white; padding: 0.7rem 1.5rem; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }

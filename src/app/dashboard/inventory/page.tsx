@@ -1,37 +1,31 @@
-// app/dashboard/inventory/page.tsx
-import { query } from '../../../../lib/db';
+import { getInventoryHealthReport } from '../../../../lib/reports';
 
 export default async function InventoryPage() {
-  const { rows: inventory } = await query(`SELECT * FROM vw_inventory_health`);
+  const data = await getInventoryHealthReport();
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Estado del Inventario</h1>
-      <p className="text-slate-500">Insight: Salud operativa por categoría de libros.</p>
+    <div className="report-container">
+      <header className="report-header">
+        <h1 className="title-main">Salud de Inventario</h1>
+        <p className="subtitle-insight">Disponibilidad de ejemplares por categoría.</p>
+      </header>
 
-      <div className="overflow-x-auto bg-white rounded-xl border shadow-sm">
-        <table className="w-full text-left">
-          <thead className="bg-slate-50 border-b">
-            <tr>
-              <th className="p-4">Categoría</th>
-              <th className="p-4">Disponibles</th>
-              <th className="p-4">Prestados</th>
-              <th className="p-4">Perdidos</th>
-              <th className="p-4">Salud (%)</th>
-            </tr>
+      <div className="kpi-box">
+        <p className="kpi-label">Categoría Crítica</p>
+        <p className="kpi-value">{data.find((d: any) => d.health_percentage < 100)?.book_category || 'Todas OK'}</p>
+      </div>
+
+      <div className="table-card">
+        <table className="data-table">
+          <thead>
+            <tr><th>Categoría</th><th style={{ textAlign: 'center' }}>Total</th><th style={{ textAlign: 'center' }}>Salud</th></tr>
           </thead>
           <tbody>
-            {inventory.map((row: any) => (
-              <tr key={row.book_category} className="border-b">
-                <td className="p-4 font-medium">{row.book_category}</td>
-                <td className="p-4 text-green-600 font-bold">{row.available}</td>
-                <td className="p-4 text-orange-600">{row.on_loan}</td>
-                <td className="p-4 text-red-600">{row.lost}</td>
-                <td className="p-4">
-                   <div className="w-full bg-gray-200 rounded-full h-2.5">
-                      <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${row.health_percentage}%` }}></div>
-                   </div>
-                </td>
+            {data.map((item: any, i: number) => (
+              <tr key={i}>
+                <td>{item.book_category}</td>
+                <td style={{ textAlign: 'center' }}>{item.total_copies}</td>
+                <td style={{ textAlign: 'center', fontWeight: 'bold' }}>{item.health_percentage}%</td>
               </tr>
             ))}
           </tbody>
